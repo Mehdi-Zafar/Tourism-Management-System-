@@ -1,43 +1,9 @@
-<?php
-session_start();
-include('config.php');
-if (isset($_POST['delete'])) {
-    $query0 = "SELECT max(booking_id) FROM booking;";
-    $result0 = mysqli_query($con, $query0);
-    while ($row = mysqli_fetch_array($result0)) {
-        $booking = $row[0];
-    }
-    $query4 = "SELECT Customer_id FROM booking where Booking_id = '$booking'; ";
-    $result4 = mysqli_query($con, $query4);
-    while ($row = mysqli_fetch_array($result4)) {
-        $customer_id = $row[0];
-    }
-    $query5 = "SELECT Package_id FROM booking where Booking_id = '$booking'; ";
-    $result5 = mysqli_query($con, $query5);
-    while ($row = mysqli_fetch_array($result5)) {
-        $package_id = $row[0];
-    }
-    $query1 = "DELETE FROM booking_transportation where booking_id = '$booking';";
-    $result1 = mysqli_query($con, $query1);
-    $query2 = "DELETE FROM booking_hotel where booking_id = '$booking'";
-    $result2 = mysqli_query($con, $query2);
-    $query3 = "DELETE FROM customer_booking where booking_id = '$booking';";
-    $result3 = mysqli_query($con, $query3);
-    $query = "DELETE FROM booking where booking_id = '$booking';";
-    $result = mysqli_query($con, $query);
-    $query6 = "DELETE FROM customer_package where Customer_id = '$customer_id' and Package_id = '$package_id';";
-    $result6 = mysqli_query($con, $query6);
+<?php session_start();
 
-    echo '<script>alert("Your booking was deleted!")</script>';
-    echo "<script>location='booking.php'</script>";
+if ($_SESSION['email'] != "mali@gmail.com") {
+    echo "<script>alert('Page not accessible!')</script>";
+    echo "<script>location='home.php'</script>";
 }
-$ids = mysqli_query($con, "SELECT * from package");
-$row = mysqli_fetch_array($ids, MYSQLI_ASSOC);
-$count = mysqli_num_rows($ids);
-
-$transport_ids = mysqli_query($con, "SELECT * from transportation");
-$row2 = mysqli_fetch_array($transport_ids, MYSQLI_ASSOC);
-$transport_count = mysqli_num_rows($transport_ids);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,9 +16,8 @@ $transport_count = mysqli_num_rows($transport_ids);
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
 
-    <title>🆃🅱 Travel Bug | Booking</title>
-    <link rel="stylesheet" href="style.css" Type="text/css" media="all">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>🆃🅱 Travel Bug | Add Package</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Stylish&display=swap" rel="stylesheet">
@@ -84,26 +49,6 @@ $transport_count = mysqli_num_rows($transport_ids);
                     <li class="nav-item">
                         <a class="nav-link" href="contact.php">Contact Us</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Packages
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php for ($x = 1; $x < $count + 1; $x++) : ?>
-                                <li><a class="dropdown-item" href="<?php $link_query = "SELECT link from package where Package_id = '$x'";
-                                                                    $result2 = mysqli_query($con, $link_query);
-                                                                    while ($row = mysqli_fetch_array($result2)) {
-                                                                        $link = $row[0];
-                                                                    }
-                                                                    echo "$link"; ?>"><?php $package_name_query = "SELECT Package_name from package where Package_id = '$x'";
-                                                                                        $result = mysqli_query($con, $package_name_query);
-                                                                                        while ($row = mysqli_fetch_array($result)) {
-                                                                                            $package_name = $row[0];
-                                                                                        }
-                                                                                        echo "$package_name"; ?></a></li>
-                            <?php endfor ?>
-                        </ul>
-                    </li>
                 </ul>
 
                 <div class="mx-2">
@@ -128,7 +73,7 @@ $transport_count = mysqli_num_rows($transport_ids);
                         <?php if ($_SESSION['email'] == "mali@gmail.com") : ?>
                             <li><a class="dropdown-item" href="addpackage.php">Add Package</a></li>
                             <div class="dropdown-divider"></div>
-                            <li><a class="dropdown-item" href="addtransport.php">Add Transport</a></li>
+                            <li><a class="dropdown-item " href="addtransport.php">Add Transport</a></li>
                             <div class="dropdown-divider"></div>
                             <li><a class="dropdown-item" href="addhotel.php">Add Hotel</a></li>
                             <div class="dropdown-divider"></div>
@@ -267,162 +212,35 @@ $transport_count = mysqli_num_rows($transport_ids);
         </div>
     </div>
 
-    <div>
-        <img src="images\300x600(3).jpg" class="floatRight img-responsive">
-    </div>
-
-    <div>
-        <img src="images\300x600(3).jpg" class="floatLeft img-responsive">
-    </div>
-
     <center>
         <div>
             <strong><u>
-                    <h1>BOOKING</h1>
+                    <EM>
+                        <h1>ADD TRANSPORT</h1>
+                    </EM>
                 </u></strong>
         </div>
     </center>
-
-
-    <div class="row">
-        <u>
-            <h2 class="mb-3">Package Name</h2>
-        </u>
-
-        <form action="book.php" method="POST">
-            <?php for ($i = 1; $i < $count + 1; $i++) : ?>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="package" id="$i" value=<?php echo "$i"; ?>>
-                    <label class="form-check-label" for="exampleRadios1">
-                        <h3><?php $package_name_query = "SELECT Package_name from package where Package_id = '$i'";
-                            $result = mysqli_query($con, $package_name_query);
-                            while ($row = mysqli_fetch_array($result)) {
-                                $package_name = $row[0];
-                            }
-                            echo "$package_name"; ?></h3>
-                    </label>
-                </div>
-            <?php endfor ?>
-            <br>
-            <u>
-                <h2 class="mb-3">Transportation</h2>
-            </u>
-            <?php for ($i = 1; $i < $transport_count + 1; $i++) : ?>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="transport" id="$i" value=<?php echo "$i"; ?>>
-                    <label class="form-check-label" for="exampleRadios1">
-                        <h3><?php $transport_name_query = "SELECT Transportation_type from transportation where Transportation_id = '$i'";
-                            $result2 = mysqli_query($con, $transport_name_query);
-                            while ($row = mysqli_fetch_array($result2)) {
-                                $transport_name = $row[0];
-                            }
-                            echo "$transport_name"; ?></h3>
-                    </label>
-                </div>
-            <?php endfor ?>
-            <br>
-            <!-- <script type="text/javascript">
-                function fn2() {
-                    var murree = $("input[id='1']:checked").val();
-                    var skardu = $("input[id='2']:checked").val();
-                    var naran = $("input[id='3']:checked").val();
-                    var hunza = $("input[id='4']:checked").val();
-                    var people = document.getElementById("person").value;
-                    var corolla = $("input[id='']:checked").val();
-                    var hilux = $("input[id='hilux']:checked").val();
-                    var hiace = $("input[id='hiace']:checked").val();
-                    if (skardu) {
-                        if (people > 2) {
-                            var string = "Hotel Name: Hotel Bliss"
-                            var price = people * 15000
-                            var package = 15000
-                            var place = "Skardu Package"
-                            document.getElementById('output4').innerHTML = string
-                            document.getElementById('output5').innerHTML = place
-                        }
-                    } else if (murree) {
-                        if (people == 2) {
-                            var string = "Hotel Name: Crown Plaza"
-                            var price = 20000
-                            var package = 10000
-                            var place = "Murree Package"
-                            document.getElementById('output4').innerHTML = string
-                            document.getElementById('output5').innerHTML = place
-                        }
-                    } else if (naran) {
-                        if (people > 2) {
-                            var string = "Hotel Name: Spotlight Hotel"
-                            var price = people * 13000
-                            var package = 13000
-                            var place = "Naran Package"
-                            document.getElementById('output4').innerHTML = string
-                            document.getElementById('output5').innerHTML = place
-                        }
-                    } else if (hunza) {
-                        if (people > 2) {
-                            var string = "Hotel Name: Royal Galaxy"
-                            var price = people * 15000
-                            var package = 15000
-                            var place = "Hunza Package"
-                            document.getElementById('output4').innerHTML = string
-                            document.getElementById('output5').innerHTML = place
-                        }
-                    } else {
-                        var package = null
-                        var price = null
-                        alert("Select one package")
-
-                    }
-                    if (people == 0) {
-                        alert("Enter valid number of people");
-                    }
-
-                    if (corolla) {
-                        var transport = "Transport: Toyota Corolla"
-                    } else if (hilux) {
-                        var transport = "Transport: Toyota Hilux"
-                    } else if (hiace) {
-                        var transport = "Transport: Toyota Hiace"
-                    } else {
-                        var transport = null
-                        alert("Select one transport")
-                    }
-                    if (people != 2 && murree) {
-                        alert("Only 2 people allowed as it is a couple package")
-                    }
-                    if (people < 3 && (skardu || naran || hunza)) {
-                        alert("More than 2 people allowed as it is a family package")
-                    }
-                    if (people > 2 && (package == null)) {
-                        var people = null
-                        var transport = "-------"
-                        var string = "-------"
-                        var place = "-------"
-                        document.getElementById('output4').innerHTML = string
-                        document.getElementById('output5').innerHTML = place
-                    }
-                    document.getElementById('output').innerHTML = price;
-                    document.getElementById('output2').innerHTML = people;
-                    document.getElementById('output3').innerHTML = package;
-                    document.getElementById('output6').innerHTML = transport;
-
-                }
-            </script> -->
-
-
-            <center>
-                <label for="No of people">Total no of people:</label>
-                <input type="number" id="person" name="person" value="null"><br>
-            </center>
-            <br>
-            <center>
-                <button type="submit" name="confirmbtn" onclick="fn2()" id="confirmbtn" class="btn btn-dark btnclick">Confirm</button>
-                <p style="margin-bottom: 50px; "><strong>(Make sure to check all details before pressing this button)</strong></p>
-            </center>
-        </form>
-        <br>
+    <!-- <textarea id="" name="description" rows="4" cols="50" required></textarea> -->
+    <div class="container">
+        <center>
+            <div class="add">
+                <form action="addtransportform.php" method="post">
+                    <div class="type">
+                        <label for="type">Transportion type: <br>(eg. Toyota Corolla)</label>
+                        <input type="text" name="type" id="type" required>
+                    </div><br>
+                    <div class="desc">
+                        <label for="description">Transportation Description: <br>(eg. capacity, air conditioned, etc)</label>
+                        <textarea id="description" name="description" rows="4" cols="50" required></textarea>
+                    </div><br>
+                    <button class="btn btn-lg btn-success">Submit</button>
+                </form>
+            </div>
+        </center>
     </div>
-    </div>
+    <br><br>
+
     <div class="card text-center bg-dark">
         <div class="card-header">For all the Hodophiles out there</div>
         <div class="card-body">
@@ -436,43 +254,6 @@ $transport_count = mysqli_num_rows($transport_ids);
             &copy; 2022 Travel Bug. All rights reserved.
         </div>
     </div>
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script>
-        window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')
-    </script>
-    <script src="../../assets/js/vendor/popper.min.js"></script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
-    <script src="../../assets/js/vendor/holder.min.js"></script>
-    <script>
-        // Example starter JavaScript for disabling form submissions if there are invalid fields
-        (function() {
-            'use strict';
-
-            window.addEventListener('load', function() {
-                // Fetch all the forms we want to apply custom Bootstrap validation styles to
-                var forms = document.getElementsByClassName('needs-validation');
-
-                // Loop over them and prevent submission
-                var validation = Array.prototype.filter.call(forms, function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (form.checkValidity() === false) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            }, false);
-        })();
-    </script>
-
-
-
-
 
     <!-- Optional JavaScript; choose one of the two! -->
 

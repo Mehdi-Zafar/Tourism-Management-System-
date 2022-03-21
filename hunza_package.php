@@ -1,4 +1,12 @@
-<?php session_start(); ?>
+<?php session_start();
+include('config.php');
+$ids = mysqli_query($con, "SELECT * from package");
+$row = mysqli_fetch_array($ids, MYSQLI_ASSOC);
+$count = mysqli_num_rows($ids);
+$tc = mysqli_query($con, "SELECT * from transportation");
+$row = mysqli_fetch_array($tc, MYSQLI_ASSOC);
+$transportcount = mysqli_num_rows($tc);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,15 +20,25 @@
 
   <title>🆃🅱 Travel Bug | Hunza Package</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Stylish&display=swap" rel="stylesheet">
 </head>
 
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">🆃🅱𝓣𝓻𝓪𝓿𝓮𝓵 𝓑𝓾𝓰</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <?php if ($_SESSION['email'] == "mali@gmail.com") : ?>
+        <a class="navbar-brand" href="#">🆃🅱Travel Bug🔒</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      <?php else : ?>
+        <a class="navbar-brand" href="#">🆃🅱Travel Bug</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      <?php endif; ?>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
@@ -36,23 +54,37 @@
         </ul>
 
         <div class="mx-2">
-          <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#LoginModal">
-            Log In
-          </button>
-          <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#SignUpModal">
-            Sign Up
-          </button>
+          <?php if (!isset($_SESSION['email'])) : ?>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#LoginModal">
+              Log In
+            </button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#SignUpModal">
+              Sign Up
+            </button>
+          <?php endif; ?>
         </div>
-        <div class="dropdown text-end">
-          <a href="#" class="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-            <?php echo $_SESSION['email'] ?>
-          </a>
+        <?php if (isset($_SESSION['email'])) : ?>
+          <div class="dropdown text-end" id="emailborder">
+            <a href="#" class="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+              <?php echo $_SESSION['email'] ?>
+            </a>
+          <?php endif; ?>
           <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
+            <div class="dropdown-divider"></div>
+            <?php if ($_SESSION['email'] == "mali@gmail.com") : ?>
+              <li><a class="dropdown-item" href="addpackage.php">Add Package</a></li>
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="addtransport.php">Add Transport</a></li>
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="addhotel.php">Add Hotel</a></li>
+              <div class="dropdown-divider"></div>
+            <?php endif; ?>
             <li><button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#ChangePasswordModal">Change Password</button></li>
             <div class="dropdown-divider"></div>
             <li><a class="dropdown-item" href="logout.php">Logout</a></li>
           </ul>
-        </div>
+          </div>
       </div>
     </div>
   </nav>
@@ -182,27 +214,36 @@
     </div>
   </div>
 
-  <div>
-    <center>
-      <u>
-        <h1>𝘏𝘜𝘕𝘡𝘈 𝘗𝘈𝘊𝘒𝘈𝘎𝘌</h1>
-      </u>
-    </center>
-  </div>
+  <center>
+    <div>
+      <strong><u>
+          <EM>
+            <h1>HUNZA PACKAGE</h1>
+          </EM>
+        </u></strong>
+    </div>
+  </center>
 
   <ul class="nav nav-tabs">
-    <li class="nav-item">
-      <a class="nav-link active" aria-current="page" href="murree_package.php">Murree Package</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link active" aria-current="page" href="skardu_package.php">Skardu Package</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link active" aria-current="page" href="naran_package.php">Naran Package</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link active" aria-current="page" href="hunza_package.php">Hunza Package</a>
-    </li>
+    <?php for ($i = 1; $i < $count + 1; $i++) : ?>
+      <li class="nav-item">
+        <a class="nav-link active bg-dark text-light" aria-current="page" href="<?php $link_query = "SELECT link from package where Package_id = '$i'";
+                                                                                $result2 = mysqli_query($con, $link_query);
+                                                                                while ($row = mysqli_fetch_array($result2)) {
+                                                                                  $link = $row[0];
+                                                                                }
+                                                                                echo "$link"; ?>"><?php $package_name_query = "SELECT Package_name from package where Package_id = '$i'";
+                                                                                                  $result = mysqli_query($con, $package_name_query);
+                                                                                                  while ($row = mysqli_fetch_array($result)) {
+                                                                                                    $package_name = $row[0];
+                                                                                                  }
+                                                                                                  if ($package_name == 'Hunza Package') {
+                                                                                                    echo "<span style='color:deepskyblue'>$package_name</span>";
+                                                                                                  } else {
+                                                                                                    echo "$package_name";
+                                                                                                  } ?></a>
+      </li>
+    <?php endfor ?>
   </ul>
 
   <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
@@ -257,9 +298,12 @@
 
   <div>
     <h4>
-      The 5 day will includes visit to Baltit fort, Attabad lake and mountain
-      peaks such as Lady Finger, Shispare Sar and Ultar Sar. This trip further
-      includes stay at Royal Galaxy Hotel and transportation. (Note: This is a family package)
+      <?php $Packagedesc_query = "SELECT Package_desc from package where Package_name = 'Hunza Package'";
+      $result2 = mysqli_query($con, $Packagedesc_query);
+      while ($row = mysqli_fetch_array($result2)) {
+        $Packagedesc = $row[0];
+      }
+      echo "$Packagedesc"; ?>
     </h4>
   </div>
   <br />
@@ -272,16 +316,49 @@
   </div>
   <div>
     <h4>
-      Stay at the Royal Galaxy Hotel on your next visit to Hunza Valley where you will be provided world class facilities to make your trip memorable. The hotel address is Wazir Road, Hunza Valley.
+      <?php $Hoteldesc_query = "SELECT Hotel_desc from hotel where Hotel_name = 'Royal Galaxy'";
+      $result3 = mysqli_query($con, $Hoteldesc_query);
+      while ($row = mysqli_fetch_array($result3)) {
+        $Hoteldesc = $row[0];
+      }
+      echo "$Hoteldesc"; ?>
     </h4>
   </div>
   <br>
-
   <div>
     <center>
-      <h4><strong>Package Price per person: Rs.15000</strong></h4>
+      <u>
+        <h2><strong>Transport Description</strong></h2>
+      </u>
     </center>
   </div>
+  <div>
+    <h4>
+      <?php for ($i = 1; $i < $transportcount + 1; $i++) {
+        $Transportname_query = "SELECT Transportation_type from transportation where Transportation_id = '$i'";
+        $result5 = mysqli_query($con, $Transportname_query);
+        while ($row = mysqli_fetch_array($result5)) {
+          $transportname = $row[0];
+        }
+        $Transportdesc_query = "SELECT Transportation_desc from transportation where Transportation_id = '$i'";
+        $result4 = mysqli_query($con, $Transportdesc_query);
+        while ($row = mysqli_fetch_array($result4)) {
+          $transportdesc = $row[0];
+        }
+        echo "<strong>$transportname</strong>: $transportdesc";
+        echo "<br>";
+      } ?>
+    </h4>
+  </div><br>
+
+  <center>
+    <h4><strong><span class="pricebox"> <?php $Packageprice_query = "SELECT Amount_per_person from package where Package_name = 'Hunza Package'";
+                                        $result2 = mysqli_query($con, $Packageprice_query);
+                                        while ($row = mysqli_fetch_array($result2)) {
+                                          $Packageprice = $row[0];
+                                        }
+                                        echo "Package Price per person: Rs.$Packageprice"; ?></span></strong></h4>
+  </center>
 
   <br>
 
@@ -290,17 +367,17 @@
   </center>
   <br />
 
-  <div class="card text-center">
+  <div class="card text-center bg-dark">
     <div class="card-header">For all the Hodophiles out there</div>
     <div class="card-body">
       <h5 class="card-title">
         We travel not to escape life but for life not to escape us!
       </h5>
       <p class="card-text"></p>
-      <a href="contact.php" class="btn btn-dark">Contact Us</a>
+      <a href="contact.php" class="btn btn-danger">Contact Us</a>
     </div>
     <div class="card-footer text-muted">
-      © 2021 Travel Bug. All rights reserved.
+      &copy; 2022 Travel Bug. All rights reserved.
     </div>
   </div>
 

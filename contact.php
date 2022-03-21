@@ -1,4 +1,9 @@
-<?php session_start(); ?>
+<?php session_start();
+include('config.php');
+$ids = mysqli_query($con, "SELECT * from package");
+$row = mysqli_fetch_array($ids, MYSQLI_ASSOC);
+$count = mysqli_num_rows($ids);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,15 +17,25 @@
 
   <title>🆃🅱 Travel Bug | Contact Us</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Stylish&display=swap" rel="stylesheet">
 </head>
 
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">🆃🅱𝓣𝓻𝓪𝓿𝓮𝓵 𝓑𝓾𝓰</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <?php if ($_SESSION['email'] == "mali@gmail.com") : ?>
+        <a class="navbar-brand" href="#">🆃🅱Travel Bug🔒</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      <?php else : ?>
+        <a class="navbar-brand" href="#">🆃🅱Travel Bug</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      <?php endif; ?>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
@@ -31,39 +46,62 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="contact.php">Contact Us</a>
+            <a class="nav-link text-white" href="contact.php">Contact Us</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Packages
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="murree_package.php">Murree Package</a></li>
-              <li><a class="dropdown-item" href="skardu_package.php">Skardu Package</a></li>
-              <li><a class="dropdown-item" href="naran_package.php">Naran Package</a></li>
-              <li><a class="dropdown-item" href="hunza_package.php">Hunza Package</a></li>
+              <?php for ($x = 1; $x < $count + 1; $x++) : ?>
+                <li><a class="dropdown-item" href="<?php $link_query = "SELECT link from package where Package_id = '$x'";
+                                                    $result2 = mysqli_query($con, $link_query);
+                                                    while ($row = mysqli_fetch_array($result2)) {
+                                                      $link = $row[0];
+                                                    }
+                                                    echo "$link"; ?>"><?php $package_name_query = "SELECT Package_name from package where Package_id = '$x'";
+                                                                      $result = mysqli_query($con, $package_name_query);
+                                                                      while ($row = mysqli_fetch_array($result)) {
+                                                                        $package_name = $row[0];
+                                                                      }
+                                                                      echo "$package_name"; ?></a></li>
+              <?php endfor ?>
             </ul>
           </li>
         </ul>
 
         <div class="mx-2">
-          <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#LoginModal">
-            Log In
-          </button>
-          <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#SignUpModal">
-            Sign Up
-          </button>
+          <?php if (!isset($_SESSION['email'])) : ?>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#LoginModal">
+              Log In
+            </button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#SignUpModal">
+              Sign Up
+            </button>
+          <?php endif; ?>
         </div>
-        <div class="dropdown text-end">
-          <a href="#" class="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-            <?php echo $_SESSION['email'] ?>
-          </a>
+        <?php if (isset($_SESSION['email'])) : ?>
+          <div class="dropdown text-end" id="emailborder">
+            <a href="#" class="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+              <?php echo $_SESSION['email'] ?>
+            </a>
+          <?php endif; ?>
           <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
+            <div class="dropdown-divider"></div>
+            <?php if ($_SESSION['email'] == "mali@gmail.com") : ?>
+              <li><a class="dropdown-item" href="addpackage.php">Add Package</a></li>
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="addtransport.php">Add Transport</a></li>
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="addhotel.php">Add Hotel</a></li>
+              <div class="dropdown-divider"></div>
+            <?php endif; ?>
             <li><button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#ChangePasswordModal">Change Password</button></li>
             <div class="dropdown-divider"></div>
             <li><a class="dropdown-item" href="logout.php">Logout</a></li>
           </ul>
-        </div>
+          </div>
       </div>
     </div>
   </nav>
@@ -197,10 +235,10 @@
     <img src="images\contact.jpg" class="img-fluid" alt="..." />
   </center>
 
-  <div class="card text-center">
-    <h4>
+  <div class="card text-center bg-dark">
+    <h3>
       <div class="card-header">Become a part of our family</div>
-    </h4>
+    </h3>
     <div class="card-body">
       <blockquote class="blockquote mb-0">
         <p>
